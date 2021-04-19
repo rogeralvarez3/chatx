@@ -87,9 +87,20 @@
           <v-row>
             <h3>USUARIOS Y SALAS</h3>
             <v-spacer></v-spacer>
-            <v-btn fab small dark color="success" @click="dlgNewRoom = true"
-              ><v-icon>mdi-account-multiple-plus</v-icon></v-btn
-            >
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  fab
+                  small
+                  dark
+                  color="success"
+                  @click="dlgNewRoom = true"
+                  v-on="on"
+                  ><v-icon>mdi-account-multiple-plus</v-icon></v-btn
+                >
+              </template>
+              <span>Agregar sala</span>
+            </v-tooltip>
           </v-row>
         </v-list-item>
 
@@ -144,12 +155,12 @@
           <v-badge
             color="primary"
             v-if="
-              $store.state.mensajes.filter((m) => {
+              $store.state.mensajes.filter(m => {
                 return m.from == item.id && !m.estado && m.userType == 0;
               }).length > 0
             "
             :content="
-              $store.state.mensajes.filter((m) => {
+              $store.state.mensajes.filter(m => {
                 return m.from == item.id && !m.estado && m.userType == 0;
               }).length
             "
@@ -179,7 +190,7 @@ export default {
   name: "App",
   components: {
     Chat,
-    NewRoom,
+    NewRoom
   },
   data: () => ({
     dlgLogin: true,
@@ -187,10 +198,10 @@ export default {
     buscar: "",
     to: {},
     drawer: undefined,
-    socketIo: null,
+    socketIo: null
   }),
   methods: {
-    login: function (handler) {
+    login: function(handler) {
       let mv = this;
       let remoteUrl = mv.$store.state.serverUsers;
       let iframe = document.getElementById("login");
@@ -198,7 +209,7 @@ export default {
       iframe.addEventListener("load", () => {
         iframe.contentWindow.postMessage("loaded", remoteUrl);
       });
-      window.addEventListener("message", (e) => {
+      window.addEventListener("message", e => {
         if (e.origin != remoteUrl) {
           return;
         }
@@ -206,27 +217,27 @@ export default {
         handler(e.data);
       });
     },
-    initData: function (user) {
+    initData: function(user) {
       let mv = this;
       let data = { variable: "user", data: user };
       mv.$store.commit("setVar", data);
-      mv.$store.dispatch("getUsers", (users) => {
+      mv.$store.dispatch("getUsers", users => {
         let urlParams = new URL(document.location).searchParams;
         let to = urlParams.get("to");
         let type = urlParams.get("type");
         if (to && users.length > 0 && type == 0) {
-          let idx = users.findIndex((u) => {
+          let idx = users.findIndex(u => {
             return u.id == to;
           });
           mv.to = users[idx];
           mv.to.userType = 0;
         }
-        mv.$store.dispatch("getSalas", (rooms) => {
+        mv.$store.dispatch("getSalas", rooms => {
           let urlParams = new URL(document.location).searchParams;
           let to = urlParams.get("to");
           let type = urlParams.get("type");
           if (to && rooms.length > 0 && type == 1) {
-            let idz = rooms.findIndex((s) => {
+            let idz = rooms.findIndex(s => {
               return s.id == to;
             });
             mv.to = mv.$store.state.salas[idz];
@@ -236,13 +247,13 @@ export default {
         });
       });
     },
-    setTo: function (user) {
+    setTo: function(user) {
       let mv = this;
       mv.to = user;
       mv.$store.state.socketIo.emit("mensajesLeidos", {
         from: user.id,
         to: mv.$store.state.user.id,
-        userType: user.userType,
+        userType: user.userType
       });
       let currentUser = new URL(document.location).searchParams.get("to");
       let type = new URL(document.location).searchParams.get("type");
@@ -256,11 +267,11 @@ export default {
         mv.$router.push(ruta).catch(() => {});
       }
     },
-    cerrarChat: function () {
+    cerrarChat: function() {
       this.to = {};
       window.history.pushState({}, document.title, "/");
     },
-    logout: function () {
+    logout: function() {
       let mv = this;
       let remoteUrl = mv.$store.state.serverUsers;
       let iframe = document.getElementById("login");
@@ -272,77 +283,88 @@ export default {
       mv.$store.commit("setVar", { variable: "salas", valor: [] });
       mv.dlgLogin = true;
       //localStorage.removeItem("browserId");
+      location.reload();
     },
-    salir: function () {
+    salir: function() {
       if (window.ipcRenderer) {
         window.ipcRenderer.send("minimizar");
       } else {
         console.log("no hay ipcRenderer");
       }
     },
-    openChat: function (data) {
+    openChat: function(data) {
       let mv = this;
       let user = {};
       if (data.msg.userType == 0) {
-        user = mv.$store.state.usuarios.filter((u) => {
+        user = mv.$store.state.usuarios.filter(u => {
           return (u.id = data.msg.from);
         })[0];
         user.userType = 0;
       } else {
-        user = mv.$store.state.salas.filter((s) => {
+        user = mv.$store.state.salas.filter(s => {
           return s.id == data.msg.to;
         })[0];
         user.userType = 1;
       }
       mv.setTo(user);
     },
-    isElectron: function () {
+    isElectron: function() {
       if (window.ipcRenderer) {
         return true;
       } else {
         return false;
       }
-    },
+    }
   },
   computed: {
-    usuarios: function () {
+    usuarios: function() {
       let mv = this;
-      return mv.$store.state.usuarios.filter((u) => {
+      return mv.$store.state.usuarios.filter(u => {
         return (
           u.id != mv.$store.state.user.id &&
           u.nombre
             .toString()
             .toLowerCase()
-            .indexOf(mv.buscar.toString().trim().toLowerCase()) >= 0 &&
+            .indexOf(
+              mv.buscar
+                .toString()
+                .trim()
+                .toLowerCase()
+            ) >= 0 &&
           u.activo == 0
         );
       });
     },
-    salas: function () {
+    salas: function() {
       let mv = this;
-      return mv.$store.state.salas.filter((s) => {
+      return mv.$store.state.salas.filter(s => {
         return (
           s.nombre
             .toString()
             .toLowerCase()
-            .indexOf(mv.buscar.toString().trim().toLowerCase()) >= 0
+            .indexOf(
+              mv.buscar
+                .toString()
+                .trim()
+                .toLowerCase()
+            ) >= 0
         );
       });
     },
-    userInfo: function () {
+    userInfo: function() {
       let mv = this;
       let u = mv.$store.state.user;
       let result = {
         Dirección: u.dirección,
         Correo: u.correo,
-        Teléfono: u.teléfono,
+        Teléfono: u.teléfono
       };
       return result;
-    },
+    }
   },
-  mounted: function () {
+  mounted: function() {
     let mv = this;
-    mv.login((res) => {
+    mv.login(res => {
       let user = JSON.parse(res);
       mv.initData(user);
       let browserId = localStorage.getItem("browserId");
@@ -357,30 +379,30 @@ export default {
       socketIo.emit("updateUserData", {
         userId: user.id,
         userName: user.nombre,
-        browserId: browserId,
+        browserId: browserId
       });
-      socketIo.on("requestUserData", () => {
+      socketIo.on("connect", () => {
         socketIo.emit("updateUserData", {
           userId: user.id,
           userName: user.nombre,
-          browserId: browserId,
+          browserId: browserId
         });
       });
-      socketIo.on("mensaje", (data) => {
-        console.log(data);
+      socketIo.on("mensaje", data => {
+        //console.log(data);
         if (mv.to.id == data.from) {
           socketIo.emit("mensajesLeidos", { from: data.from, to: data.to });
         }
         mv.$store.commit("addMessage", data);
         if (window.ipcRenderer && data.from != mv.$store.state.user.id) {
           let grupo = data.userType == 0 ? "usuarios" : "salas";
-          let user = mv.$store.state[grupo].findIndex((u) => {
+          let user = mv.$store.state[grupo].findIndex(u => {
             return data.from == u.id;
           });
           let notifyOptions = {
             title: mv.$store.state[grupo][user].nombre,
             body: data.texto,
-            msg: data,
+            msg: data
           };
           console.log(notifyOptions);
           window.ipcRenderer.send("mensaje", notifyOptions);
@@ -390,26 +412,32 @@ export default {
           });
         }
       });
-      socketIo.on("mensajesLeidos", (data) => {
+      socketIo.on("mensajesLeidos", data => {
         //console.log("se leyeron los mensajes de ",data)
         mv.$store.commit("mensajesLeidos", data);
       });
-      socketIo.on("error", (data) => {
+      socketIo.on("error", data => {
         console.log(data);
       });
-      socketIo.on("cambiarEstadoDeUsuarios", (data) => {
-        mv.$store.commit("updateUser", data);
-      });
-      socketIo.on("onlineUsers", (data) => {
-        mv.$store.state.usuarios.forEach((u) => {
-          if (data.includes(u.id)) {
-            mv.$store.commit("updateUser", { id: u.id, online: true });
+      socketIo.on("onlineUsers", data => {
+        //console.log(data);
+        let i = setInterval(() => {
+          if (mv.$store.state.usuarios.length > 0) {
+            mv.$store.state.usuarios.forEach(u => {
+              if (data.includes(u.id)) {
+                //console.log(u);
+                mv.$store.commit("updateUser", { id: u.id, online: true });
+              } else {
+                mv.$store.commit("updateUser", { id: u.id, online: false });
+              }
+              clearInterval(i);
+            });
           }
-        });
+        }, 100);
       });
       mv.$store.commit("setVar", { variable: "socketIo", data: socketIo });
     });
-  },
+  }
 };
 </script>
 <style scoped>

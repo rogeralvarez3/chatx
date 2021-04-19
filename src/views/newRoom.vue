@@ -17,7 +17,7 @@
             alt="Click para cambiar imagen"
             width="100"
             height="100"
-            class="elevation-2 ml-2 mr-2"
+            class="elevation-2 ml-2 mr-2 imagen-sala"
             @click="selectImg()"
             style="cursor: pointer"
           />
@@ -165,5 +165,9 @@ export default {
 }
 tr {
   cursor: pointer;
+}
+.imagen-sala{
+  border-radius: 10px;
+  border: 1px solid #888888;
 }
 </style>

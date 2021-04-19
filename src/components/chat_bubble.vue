@@ -1,8 +1,20 @@
 <template>
-  <div class="flex pa-4 pt-3 pb-4">
+  <div class="flex pa-1">
     <v-layout
       class="bubble-inner"
-      :class="`${colors[msg.to != $store.state.user.id ? 0 : 1]}--text`"
+      :class="
+        `${
+          colors[
+            msg.userType == 0
+              ? msg.to != $store.state.user.id
+                ? 0
+                : 1
+              : msg.from != $store.state.user.id
+              ? 1
+              : 0
+          ]
+        }--text`
+      "
     >
       <v-layout row class="pa-2 pt-3 pl-3">
         <v-avatar width="22" height="22" min-width="22"
@@ -10,19 +22,22 @@
             :src="user.imagen ? user.imagen : $store.state.defaultUserImage"
             :alt="user.nombre"
         /></v-avatar>
-        <span class="small-text">{{
-          `--> ${
-            user.id != $store.state.user.id ? user.nombre : "Tu"
-          } - ${new Date(msg.fecha).toLocaleString()}`
-        }}</span>
+        <span class="small-text"
+          ><span class="mr-1"></span
+          >{{
+            ` ${
+              user.id != $store.state.user.id ? user.nombre : "Tú"
+            } - ${new Date(msg.fecha).toLocaleString()}`
+          }}</span
+        >
       </v-layout>
       <div
-        v-if="msg.to != $store.state.user.id && msg.userType==0"
+        v-if="msg.to != $store.state.user.id && msg.userType == 0"
         v-html="
-          `<div class='layout row ml-4 mt-1 mb-1'>${msg.texto.replace(
+          `<div class='layout row ml-4 mt-1 mb-0'>${msg.texto.replace(
             /\n/g,
             '<br>'
-          )}<i class='v-icon mdi mdi-check-all ml-2' style='${
+          )}<i class='v-icon mdi mdi-check-all pl-2 pr-2' style='${
             msg.estado > 0
               ? 'color:#1e90ff;float:right;font-size:12px'
               : 'color:grey;float:right;font-size:12px'
@@ -33,12 +48,12 @@
       <div
         v-else
         v-html="
-          `<div class='layout row ml-4 mt-1 mb-1'>${msg.texto.replace(
+          `<div class='layout row ml-4 mt-1 mb-0'>${msg.texto.replace(
             /\n/g,
             '<br>'
           )}</div>`
         "
-        :class="msg.to != $store.state.user.id ? 'bold ml-2' : 'ml-2'"
+        :class="msg.from == $store.state.user.id ? 'bold ml-2' : 'ml-2'"
       ></div>
       <div v-if="JSON.parse(msg.files).length > 0" class="pa-1">
         <ul>
@@ -66,17 +81,17 @@
 export default {
   props: {
     colors: Array,
-    msg: Object,
+    msg: Object
   },
   computed: {
-    user: function () {
+    user: function() {
       let mv = this;
-      let idx = mv.$store.state.usuarios.findIndex((u) => {
+      let idx = mv.$store.state.usuarios.findIndex(u => {
         return u.id == mv.msg.from;
       });
       return mv.$store.state.usuarios[idx];
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -86,13 +101,29 @@ export default {
 }
 .bubble-inner {
   display: inline-block;
+  border: 1px solid rgb(150, 150, 150);
   border-radius: 10px;
-  background: #eeeeee;
+  background: linear-gradient(
+    to bottom,
+    rgb(250, 250, 250) 0%,
+    rgb(230, 230, 230) 100%
+  );
   padding: 4px;
   padding-right: 10px;
   padding-left: 4px !important;
   font-size: 14px;
   box-shadow: 0 1px 5px rgb(49, 49, 49);
+}
+.bubble-inner:before{
+  content: " ";
+  border: 1px solid rgb(150, 150, 150);
+  border-width: 2px 0 0 2px;
+  position: absolute;
+  margin-top: 10px;
+  margin-left: -12px;
+  padding: 5px;
+  background: rgb(250, 250, 250);
+  transform: rotate(-45deg);
 }
 .small-text {
   font-size: 9px;

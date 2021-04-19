@@ -6,7 +6,6 @@ const db = require("./db");
 const fetch = require("node-fetch");
 const fileUpload = require("express-fileupload");
 const authServer = "https://coopefacsa.coop:3099";
-const io = require("socket.io");
 
 const app = express();
 app.use("/fileUploads", express.static(path.resolve(__dirname, "fileUploads")));
@@ -74,7 +73,9 @@ app.post("/getData", (req, res) => {
     })
     .then(json => {
       if (json.id) {
-        if (data.tabla == "salas") { data.condición = `find_in_set('${json.id}',integrantes)>0 or integrantes='*'` }
+        if (data.tabla == "salas") {
+          data.condición = `find_in_set('${json.id}',integrantes)>0 or integrantes='*'`;
+        }
         db.list(data, result => {
           res.send(result);
         });
@@ -108,9 +109,18 @@ app.post("/getMessages", (req, res) => {
 });
 app.post("/mensaje", (req, res) => {
   let data = req.body;
+  console.log(data);
   data.tabla = "mensajes";
-  let now = new Date()
-  data.data.fecha= now.toLocaleString()
+  let now = new Date().toLocaleString();
+  now =
+    now
+      .split(/ /)[0]
+      .split(/\//)
+      .reverse()
+      .join("-") +
+    " " +
+    now.split(/ /)[1];
+  data.data.fecha = now;
   db.save(data, result => {
     if (!result.errno) {
       if (data.data.userType == 0) {
@@ -148,6 +158,8 @@ app.post("/mensaje", (req, res) => {
           }
         });
       }
+    } else {
+      console.log(result);
     }
     res.send(result);
   });
@@ -155,11 +167,11 @@ app.post("/mensaje", (req, res) => {
 app.post("/addRoom", (req, res) => {
   let data = req.body;
   data.id = 0;
-  data = { data: data, tabla: "salas" }
+  data = { data: data, tabla: "salas" };
   db.save(data, result => {
     res.send(result);
-  })
-})
+  });
+});
 let httpServer = app.listen("3001", () => {
   console.log("servidor corriendo en el puerto 3001");
 });
@@ -172,49 +184,63 @@ const socketServer = require("socket.io")(httpServer, {
   }
 });
 socketServer.on("connection", client => {
-  client.emit("requestUserData")
-  client.on("diconnect", () => {
-    console.log("se desconectó " + client.id)
-    let idx = onlineUsers.findIndex(u => { return u.socketId == client.id })
-    let userId = onlineUsers[idx].userId
-    onlineUsers.splice(idx, 1)
-    let filteredUsers=onlineUsers.filter(u=>{return u.userId==userId})
-    if(filteredUsers.length==0){
-      socketServer.emit("cambiarEstadoDeUsuarios",{id:data.userId,conectado:false})
-    }
-  })
-  client.on("updateUserData", (data) => {
-    console.log("se ha conectado ", data)
-    let idx = onlineUsers.findIndex(usr => { return usr.userId == data.userId && usr.browserId == data.browserId })
+  client.on("disconnect", () => {
+    //console.log("se desconectó " + client.id);
+
+    onlineUsers = onlineUsers.filter(u => {
+      return u.socketId != client.id;
+    });
+    let usrs = onlineUsers.map(u => {
+      return u.userId;
+    });
+    socketServer.emit("onlineUsers", usrs);
+  });
+  client.on("updateUserData", data => {
+    //console.log("se ha conectado ", data);
+    let idx = onlineUsers.findIndex(usr => {
+      return usr.userId == data.userId && usr.browserId == data.browserId;
+    });
     if (idx >= 0) {
-      onlineUsers[idx].socketId = client.id
+      onlineUsers[idx].socketId = client.id;
     } else {
-      data.socketId = client.id
-      onlineUsers.push(data)
-      socketServer.emit("cambiarEstadoDeUsuarios",{id:data.userId,conectado:true})
+      data.socketId = client.id;
+      onlineUsers.push(data);
     }
-    client.emit("onlineUsers",onlineUsers.map(u=>{return u.userId}))
-  })
+    let usrs = onlineUsers.map(u => {
+      return u.userId;
+    });
+    socketServer.emit("onlineUsers", usrs);
+  });
   client.on("mensajesLeidos", data => {
-    let params = { tabla: 'mensajes', condición: `\`from\`=${data.from} and \`to\`=${data.to}`, data: { estado: 1 } }
+    let params = {
+      tabla: "mensajes",
+      condición: `\`from\`=${data.from} and \`to\`=${data.to}`,
+      data: { estado: 1 }
+    };
     //console.log(params)
     db.save(params, result => {
       if (!result.errno) {
         onlineUsers.forEach(u => {
           //console.log({data,u})
           if (data.from == u.userId) {
-            if(socketServer.to(u.socketId)){
+            if (socketServer.to(u.socketId)) {
               //console.log(`al cliente ${u.userName} se le avisó que se leyeron sus mensajes`)
-              socketServer.to(u.socketId).emit("mensajesLeidos", {from:data.from,to:data.to,userType:data.userType})
+              socketServer.to(u.socketId).emit("mensajesLeidos", {
+                from: data.from,
+                to: data.to,
+                userType: data.userType
+              });
             }
           }
-        })
-      }else{
-        client.emit("error",{title:"error al actualizar estado de mensajes",data:result})
+        });
+      } else {
+        client.emit("error", {
+          title: "error al actualizar estado de mensajes",
+          data: result
+        });
       }
-
-    })
-  })
+    });
+  });
 });
 
 function verificarToken(token, handler) {
