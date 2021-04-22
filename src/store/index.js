@@ -6,7 +6,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    server: "",
+    server: "http://localhost:3001",
     serverUsers: "https://coopefacsa.coop:3099",
     defaultUserImage:
       "data:image/png;base64,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",
@@ -30,21 +30,33 @@ export default new Vuex.Store({
     addMessage(state, payload) {
       state.mensajes.push(payload);
     },
-    addRoom(state,payload){
+    addRoom(state, payload) {
       state.salas.push(payload);
     },
-    mensajesLeidos(state,payload){
-      state.mensajes.forEach((m)=>{
-        if(m.from==payload.from && m.to==payload.to){Vue.set(m,"estado",1)}
-      })
+    changeMessageState(state, payload) {
+      let msgsFiltered = state.mensajes.filter(m => {
+        return m.from == payload.from;
+      });
+      msgsFiltered.forEach(item => {
+        Vue.set(item, "estado", true);
+      });
     },
-    
-    updateUser(state,payload){
-      let idx = state.usuarios.findIndex(u=>{return u.id==payload.id})
-      if(idx>=0){
-        Object.keys(payload).forEach(k=>{
-          Vue.set(state.usuarios[idx],k,payload[k])
-        })
+    mensajesLeidos(state, payload) {
+      state.mensajes.forEach(m => {
+        if (m.from == payload.from && m.to == payload.to) {
+          Vue.set(m, "estado", true);
+        }
+      });
+    },
+
+    updateUser(state, payload) {
+      let idx = state.usuarios.findIndex(u => {
+        return u.id == payload.id;
+      });
+      if (idx >= 0) {
+        Object.keys(payload).forEach(k => {
+          Vue.set(state.usuarios[idx], k, payload[k]);
+        });
       }
     }
   },

@@ -1,7 +1,7 @@
 <template>
   <div class="flex pa-1">
     <v-layout
-      class="bubble-inner"
+
       :class="
         `${
           colors[
@@ -13,10 +13,16 @@
               ? 1
               : 0
           ]
-        }--text`
+        }--text bubble-inner${msg.userType == 0
+              ? msg.to != $store.state.user.id
+                ? '2'
+                : ''
+              : msg.from != $store.state.user.id
+              ? ''
+              : '2'}`
       "
     >
-      <v-layout row class="pa-2 pt-3 pl-3">
+      <v-layout row class="pa-2 pt-3 pl-3 chat-content">
         <v-avatar width="22" height="22" min-width="22"
           ><img
             :src="user.imagen ? user.imagen : $store.state.defaultUserImage"
@@ -99,6 +105,9 @@ export default {
 .bold {
   font-weight: bold !important;
 }
+.chat-content {
+  margin-top: -37px;
+}
 .bubble-inner {
   display: inline-block;
   border: 1px solid rgb(150, 150, 150);
@@ -113,16 +122,48 @@ export default {
   padding-left: 4px !important;
   font-size: 14px;
   box-shadow: 0 1px 5px rgb(49, 49, 49);
+  margin-left: 5px;
 }
-.bubble-inner:before{
+.bubble-inner:before {
+  display: block;
   content: " ";
+  width: 0;
   border: 1px solid rgb(150, 150, 150);
   border-width: 2px 0 0 2px;
-  position: absolute;
-  margin-top: 10px;
+  position: relative;
+  margin-top: 12px;
   margin-left: -12px;
   padding: 5px;
   background: rgb(250, 250, 250);
+  transform: rotate(-45deg);
+}
+.bubble-inner2 {
+  display: inline-block;
+  border: 1px solid rgb(150, 150, 150);
+  border-radius: 10px;
+  background: linear-gradient(
+    to bottom,
+    rgb(253, 209, 231) 0%,
+    rgb(230, 180, 195) 100%
+  );
+  padding: 4px;
+  padding-right: 10px;
+  padding-left: 4px !important;
+  font-size: 14px;
+  box-shadow: 0 1px 5px rgb(49, 49, 49);
+  margin-left: 5px;
+}
+.bubble-inner2:before {
+  display: block;
+  content: " ";
+  width: 0;
+  border: 1px solid rgb(150, 150, 150);
+  border-width: 2px 0 0 2px;
+  position: relative;
+  margin-top: 12px;
+  margin-left: -12px;
+  padding: 5px;
+  background: rgb(253, 209, 231);
   transform: rotate(-45deg);
 }
 .small-text {

@@ -63,7 +63,7 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="msgbox('Hola')"
+            <v-btn color="primary" @click="changeImageProfile()"
               >Cambiar imagen</v-btn
             >
             <v-btn color="warning" @click="logout()">Cerrar sesión</v-btn>
@@ -170,7 +170,7 @@
     </v-navigation-drawer>
     <v-main class="fullHeight">
       <v-container class="fullHeight">
-        <chat :to="to" v-if="to.id" v-on:cerrar="cerrarChat()" />
+        <chat :to="to" v-if="to.id" v-on:cerrar="cerrarChat()" id="chat-box" />
       </v-container>
     </v-main>
     <v-dialog v-model="dlgLogin" persistent width="500">
@@ -186,6 +186,7 @@
 import Chat from "./components/chat.vue";
 import io from "socket.io/client-dist/socket.io";
 import NewRoom from "./views/newRoom";
+
 export default {
   name: "App",
   components: {
@@ -201,6 +202,9 @@ export default {
     socketIo: null
   }),
   methods: {
+    changeImageProfile(){
+      
+    },
     login: function(handler) {
       let mv = this;
       let remoteUrl = mv.$store.state.serverUsers;
@@ -255,6 +259,7 @@ export default {
         to: mv.$store.state.user.id,
         userType: user.userType
       });
+      mv.$store.commit("changeMessageState", { from: mv.to.id });
       let currentUser = new URL(document.location).searchParams.get("to");
       let type = new URL(document.location).searchParams.get("type");
       if (user.id != currentUser || user.userType != type) {
@@ -392,6 +397,7 @@ export default {
         //console.log(data);
         if (mv.to.id == data.from) {
           socketIo.emit("mensajesLeidos", { from: data.from, to: data.to });
+          mv.$store.commit("changeMessageState", { from: data.from });
         }
         mv.$store.commit("addMessage", data);
         if (window.ipcRenderer && data.from != mv.$store.state.user.id) {

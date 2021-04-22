@@ -26,13 +26,10 @@ app.post("/uploadFile", (req, res) => {
       if (req.files) {
         let file = req.files.myFile;
         let newName =
-          new Date()
-            .toLocaleString()
-            .replace(/:/g, "")
-            .replace(/-/g, "")
-            .replace(/ /g, "") +
+          new Date().toLocaleString().replace(/[:/\- ]/g, "") +
           "___" +
           file.name;
+        console.log(newName);
         let mypath = path.resolve(__dirname, "fileUploads", newName);
         fs.writeFileSync(mypath, file.data);
         delete file.data;

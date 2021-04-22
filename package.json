@@ -16,6 +16,7 @@
   "main": "background.js",
   "dependencies": {
     "core-js": "^3.6.5",
+    "draggable": "^4.2.0",
     "v-emoji-picker": "^2.3.3",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",

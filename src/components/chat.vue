@@ -176,6 +176,7 @@
 <script>
 import { VEmojiPicker } from "v-emoji-picker";
 import ChatBubble from "./chat_bubble.vue";
+
 export default {
   components: { VEmojiPicker, ChatBubble },
   props: {
@@ -325,6 +326,7 @@ export default {
       mv.cardTextHeight = window.innerHeight - 272;
       mv.updateScroll();
     };
+    
   },
 };
 </script>
