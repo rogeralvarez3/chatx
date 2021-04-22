@@ -115,7 +115,9 @@ export default {
   background: linear-gradient(
     to bottom,
     rgb(250, 250, 250) 0%,
-    rgb(230, 230, 230) 100%
+    rgb(230, 230, 230) 20px,
+    rgb(230, 230, 230) 20px,
+    rgb(240, 240, 240) 100%
   );
   padding: 4px;
   padding-right: 10px;
@@ -129,12 +131,12 @@ export default {
   content: " ";
   width: 0;
   border: 1px solid rgb(150, 150, 150);
-  border-width: 2px 0 0 2px;
+  border-width: 1px 0 0 1px;
   position: relative;
   margin-top: 12px;
-  margin-left: -12px;
+  margin-left: -10px;
   padding: 5px;
-  background: rgb(250, 250, 250);
+  background: rgb(230, 230, 230);
   transform: rotate(-45deg);
 }
 .bubble-inner2 {
@@ -143,14 +145,16 @@ export default {
   border-radius: 10px;
   background: linear-gradient(
     to bottom,
-    rgb(253, 209, 231) 0%,
-    rgb(230, 180, 195) 100%
+    rgb(255, 250, 255) 0%,
+    rgb(240, 230, 240) 20px,
+    rgb(240, 230, 240) 20px,
+    rgb(255, 250, 255) 100%
   );
   padding: 4px;
   padding-right: 10px;
   padding-left: 4px !important;
   font-size: 14px;
-  box-shadow: 0 1px 5px rgb(49, 49, 49);
+  box-shadow: 2px 2px 3px rgb(150, 150, 150);
   margin-left: 5px;
 }
 .bubble-inner2:before {
@@ -158,12 +162,12 @@ export default {
   content: " ";
   width: 0;
   border: 1px solid rgb(150, 150, 150);
-  border-width: 2px 0 0 2px;
+  border-width: 1px 0 0 1px;
   position: relative;
   margin-top: 12px;
-  margin-left: -12px;
+  margin-left: -10px;
   padding: 5px;
-  background: rgb(253, 209, 231);
+  background: rgb(240, 230, 240);
   transform: rotate(-45deg);
 }
 .small-text {
